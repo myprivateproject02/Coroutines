@@ -1,4 +1,7 @@
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import org.intellij.lang.annotations.Flow
 import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -6,33 +9,59 @@ import kotlin.concurrent.thread
 
 fun main() {
     println("Main Program = :${Thread.currentThread().name}")
-    launchingWithContext()
+//    exampleBlocks()
+//    exampleBloakingDispatcher()
+//    exampleLaunchingGlobal()
+//    exampleLaunchingGlobalWait()
+//    exampleLaunchingCoroutineScope()
+//    launchingCorouting()
+//    launchingWithContext()
+
+    runBlocking {
+        println("Receiving Numbsers...")
+        sendNumbsers().collect {
+            println("$it")
+        }
+        println("Finished Receiving Numbsers...")
+
+    }
+
+
+
 }
 
 suspend fun printDelay(message: String) {
-    delay(1000)
+    delay(3000)
     println(message)
 }
+
 fun exampleBlocks() = runBlocking {
     println("one")
     printDelay("two")
     println("three")
 }
+
 fun exampleBloakingDispatcher() {
     runBlocking(Dispatchers.Default) {
+        delay(2000)
         println("one ${Thread.currentThread().name}")
+        delay(2000)
         printDelay("two ${Thread.currentThread().name}")
     }
     println("Three ${Thread.currentThread().name}")
 }
+
 fun exampleLaunchingGlobal() = runBlocking {
+    delay(3000)
     println("One ${Thread.currentThread().name}")
     GlobalScope.launch {
+        delay(6000)
         println("Two ${Thread.currentThread().name}")
     }
     println("Three ${Thread.currentThread().name}")
     delay(3000)
 }
+
 fun exampleLaunchingGlobalWait() = runBlocking {
     println("One ${Thread.currentThread().name}")
     val job = GlobalScope.launch {
@@ -43,6 +72,7 @@ fun exampleLaunchingGlobalWait() = runBlocking {
     job.join()
 
 }
+
 fun exampleLaunchingCoroutineScope() = runBlocking {
     println("One ${Thread.currentThread().name}")
     launch(Dispatchers.IO) {
@@ -51,6 +81,7 @@ fun exampleLaunchingCoroutineScope() = runBlocking {
     }
     println("Three ${Thread.currentThread().name}")
 }
+
 fun launchingCorouting() = runBlocking {
 
     val startTime = System.currentTimeMillis()
@@ -85,4 +116,13 @@ fun launchingWithContext() = runBlocking {
 
     println("Time Taken : ${endTime - startTime}")
 
+}
+
+
+fun sendNumbsers() = flow {
+    val primeList = listOf(2, 3, 5, 7, 11, 13, 17, 19, 23, 19)
+    primeList.forEach {
+        delay(1000L)
+        emit(it)
+    }
 }
